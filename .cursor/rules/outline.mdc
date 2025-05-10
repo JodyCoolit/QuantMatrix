@@ -1,0 +1,53 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+1. Core Architecture
+Modular design with clear separation of components
+Event-driven architecture for real-time processing
+Microservices approach for scalability
+2. Component Breakdown
+2.1 Data Module
+Data Fetcher: Interface for multiple APIs (Yahoo Finance, Alpha Vantage, Binance, etc.)
+Data Processor: Cleaning, normalization, and feature engineering
+Data Store: Time-series database for historical data
+2.2 Analysis Module
+Technical Indicator Engine: Calculations for common indicators (MA, RSI, MACD)
+Statistical Analysis Tools: Correlation, regression, volatility analysis
+Visualization Service: Charts and interactive analysis tools
+2.3 Strategy Module
+Strategy Framework: Abstract base classes for strategy implementation
+Backtesting Engine: Historical simulation with performance metrics
+Optimization Service: Parameter tuning and strategy improvement
+2.4 Execution Module
+Order Manager: Creates and tracks orders
+Risk Controller: Enforces position limits and risk parameters
+Broker Interface: Standardized API for multiple brokers
+2.5 Monitoring System
+Dashboard: Key metrics and system status
+Alert System: Notifications based on predefined conditions
+Logging Service: Comprehensive activity tracking
+3. Data Flow
+External data sources → Data Fetcher → Data Processor → Data Store
+Data Store → Analysis Module → Strategy Module
+Strategy Module → Execution Module → Broker APIs
+All components → Monitoring System
+4. Technical Design
+4.1 Class Structure
+Abstract base classes for key interfaces
+Strategy pattern for trading algorithms
+Factory pattern for data source creation
+4.2 Database Schema
+Time-series data structure for market data
+Transaction records for trades
+Configuration storage for system parameters
+4.3 API Design
+RESTful interfaces between components
+WebSocket for real-time data streams
+Clear authentication and rate limiting
+5. Development Environment
+Source control with Git
+Docker containers for consistent development
+
+CI/CD pipeline for testing and deployment

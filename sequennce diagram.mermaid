@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant User
+    participant Strategy
+    participant DataManager
+    participant DataSource
+    participant OrderManager
+    participant RiskController
+    participant Broker
+    
+    User->>Strategy: start()
+    Strategy->>DataManager: get_historical_data()
+    DataManager->>DataSource: fetch_data()
+    DataSource-->>DataManager: return market data
+    DataManager-->>Strategy: return processed data
+    
+    loop For each data update
+        Strategy->>Strategy: process_data()
+        Strategy->>Strategy: generate_signals()
+        
+        alt Signal to trade
+            Strategy->>OrderManager: create_order()
+            OrderManager->>RiskController: validate_order()
+            
+            alt Order is valid
+                RiskController-->>OrderManager: approval
+                OrderManager->>Broker: place_order()
+                Broker-->>OrderManager: order confirmation
+                OrderManager-->>Strategy: order status
+            else Order exceeds risk limits
+                RiskController-->>OrderManager: rejection
+                OrderManager-->>Strategy: order rejected
+            end
+        end
+    end
+    
+    User->>Strategy: get_performance()
+    Strategy-->>User: return metrics

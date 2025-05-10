@@ -1,0 +1,145 @@
+@startuml Quantitative Trading System - Class Diagram
+
+' Core interfaces
+interface DataSource {
+  +fetch_data(symbol: str, timeframe: str, start_date: datetime, end_date: datetime): DataFrame
+  +get_realtime_data(symbol: str): DataFrame
+}
+
+interface Strategy {
+  +initialize()
+  +process_data(data: DataFrame)
+  +generate_signals(): List[Signal]
+}
+
+interface Broker {
+  +place_order(order: Order): OrderResponse
+  +get_account_info(): AccountInfo
+  +get_positions(): List[Position]
+}
+
+' Data Module
+class DataManager {
+  -sources: Map<String, DataSource>
+  +add_data_source(name: str, source: DataSource)
+  +get_historical_data(source: str, symbol: str, timeframe: str, start_date: datetime, end_date: datetime): DataFrame
+  +subscribe_to_realtime(source: str, symbol: str, callback: Function)
+}
+
+class YahooFinanceSource implements DataSource {
+  +fetch_data(symbol: str, timeframe: str, start_date: datetime, end_date: datetime): DataFrame
+  +get_realtime_data(symbol: str): DataFrame
+}
+
+class BinanceSource implements DataSource {
+  +fetch_data(symbol: str, timeframe: str, start_date: datetime, end_date: datetime): DataFrame
+  +get_realtime_data(symbol: str): DataFrame
+}
+
+class DataProcessor {
+  +clean_data(data: DataFrame): DataFrame
+  +calculate_indicators(data: DataFrame, indicators: List<Indicator>): DataFrame
+  +normalize_data(data: DataFrame): DataFrame
+}
+
+class TimeSeriesDatabase {
+  +store_data(symbol: str, data: DataFrame)
+  +get_data(symbol: str, start_date: datetime, end_date: datetime): DataFrame
+  +update_data(symbol: str, new_data: DataFrame)
+}
+
+' Strategy Module
+class StrategyManager {
+  -strategies: List<Strategy>
+  +add_strategy(strategy: Strategy)
+  +run_backtest(strategy: Strategy, data: DataFrame): BacktestResult
+  +run_optimization(strategy: Strategy, data: DataFrame, parameters: Dict): OptimizationResult
+}
+
+class MovingAverageCrossoverStrategy implements Strategy {
+  -short_window: int
+  -long_window: int
+  +initialize()
+  +process_data(data: DataFrame)
+  +generate_signals(): List<Signal>
+}
+
+class TechnicalIndicator {
+  +calculate(data: DataFrame): Series
+}
+
+class MovingAverage extends TechnicalIndicator {
+  -window: int
+  +calculate(data: DataFrame): Series
+}
+
+class RSI extends TechnicalIndicator {
+  -period: int
+  +calculate(data: DataFrame): Series
+}
+
+' Execution Module
+class OrderManager {
+  -broker: Broker
+  -risk_controller: RiskController
+  +create_order(symbol: str, order_type: OrderType, quantity: float, price: float): Order
+  +send_order(order: Order): OrderResponse
+  +cancel_order(order_id: str): bool
+}
+
+class RiskController {
+  -position_limits: Dict<String, Float>
+  -max_drawdown: float
+  -max_position_size: float
+  +validate_order(order: Order, account: AccountInfo): bool
+  +calculate_risk_metrics(positions: List<Position>): RiskMetrics
+}
+
+class Order {
+  +symbol: str
+  +order_type: OrderType
+  +side: OrderSide
+  +quantity: float
+  +price: float
+  +status: OrderStatus
+}
+
+class AlpacaBroker implements Broker {
+  -api_key: str
+  -api_secret: str
+  +place_order(order: Order): OrderResponse
+  +get_account_info(): AccountInfo
+  +get_positions(): List<Position>
+}
+
+' Monitoring Module
+class Dashboard {
+  +update_metrics(metrics: Dict)
+  +display_performance_chart()
+  +display_positions_table()
+}
+
+class AlertSystem {
+  +add_alert_condition(condition: AlertCondition)
+  +check_alerts(data: DataFrame)
+  +send_notification(alert: Alert)
+}
+
+class Logger {
+  +log_info(message: str)
+  +log_error(message: str, exception: Exception)
+  +log_trade(trade: Trade)
+}
+
+' Relationships
+DataManager --> DataSource
+DataManager --> DataProcessor
+DataManager --> TimeSeriesDatabase
+StrategyManager --> Strategy
+StrategyManager --> TechnicalIndicator
+OrderManager --> Broker
+OrderManager --> RiskController
+OrderManager --> Order
+AlertSystem --> Logger
+
+@enduml

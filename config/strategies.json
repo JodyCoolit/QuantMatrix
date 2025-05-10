@@ -1,0 +1,31 @@
+{
+    "ma_crossover": {
+        "type": "moving_average_crossover",
+        "enabled": true,
+        "symbols": ["AAPL", "MSFT", "GOOG"],
+        "parameters": {
+            "short_window": 20,
+            "long_window": 50
+        }
+    },
+    "rsi_strategy": {
+        "type": "rsi",
+        "enabled": false,
+        "symbols": ["AMZN", "TSLA"],
+        "parameters": {
+            "rsi_period": 14,
+            "overbought_threshold": 70,
+            "oversold_threshold": 30
+        }
+    },
+    "macd_strategy": {
+        "type": "macd",
+        "enabled": false,
+        "symbols": ["SPY", "QQQ"],
+        "parameters": {
+            "fast_period": 12,
+            "slow_period": 26,
+            "signal_period": 9
+        }
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "yahoo_finance": {
+        "type": "yahoo",
+        "enabled": true,
+        "symbols": ["AAPL", "MSFT", "GOOG", "AMZN", "TSLA"],
+        "timeframes": ["1d", "1h"],
+        "start_date": "2020-01-01",
+        "end_date": "2023-01-01"
+    },
+    "binance": {
+        "type": "binance",
+        "enabled": false,
+        "api_key": "",
+        "api_secret": "",
+        "symbols": ["BTCUSDT", "ETHUSDT", "BNBUSDT"],
+        "timeframes": ["1h", "4h", "1d"]
+    },
+    "alpaca": {
+        "type": "alpaca",
+        "enabled": false,
+        "api_key": "",
+        "api_secret": "",
+        "symbols": ["SPY", "QQQ", "IWM"],
+        "timeframes": ["1d"]
+    }
+} 
