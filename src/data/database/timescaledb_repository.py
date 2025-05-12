@@ -6,7 +6,7 @@ import pandas as pd
 import psycopg2
 from psycopg2 import sql
 from psycopg2.extras import execute_values
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any, Union, Tuple
 from datetime import datetime, timedelta
 
 from .database_interface import TimeSeriesDatabaseInterface
@@ -94,6 +94,37 @@ class TimescaleDBRepository(TimeSeriesDatabaseInterface):
             self.is_connected_flag = False
             return False
     
+    def execute(self, query: str, params: Optional[Union[Dict[str, Any], List[Any], Tuple]] = None, commit: bool = True) -> bool:
+        """
+        执行SQL语句。
+        
+        Args:
+            query: SQL语句
+            params: 参数
+            commit: 是否提交事务
+            
+        Returns:
+            执行是否成功
+        """
+        if not self.is_connected_flag:
+            if not self.connect():
+                self.logger.error("未连接到TimescaleDB")
+                return False
+                
+        try:
+            self.cursor.execute(query, params)
+            
+            if commit:
+                self.conn.commit()
+                
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"执行SQL语句失败: {e}")
+            if commit:
+                self.conn.rollback()
+            return False
+    
     def disconnect(self) -> bool:
         """
         Disconnect from the TimescaleDB server.
@@ -178,11 +209,10 @@ class TimescaleDBRepository(TimeSeriesDatabaseInterface):
                 self.logger.info(f"表 {table_name} 已经是超表")
                 return True
                 
-            # 将表转换为超表 - 修复SQL语句中的标识符引用
-            query = sql.SQL("SELECT create_hypertable({}, {});").format(
-                sql.Identifier(table_name), 
-                sql.Literal(time_column)
-            )
+            # 将表转换为超表 - 修正SQL语句
+            # 使用字符串格式化构建查询，因为psycopg2的SQL构造有时会有问题
+            # 这里使用单引号而不是双引号来引用标识符
+            query = f"SELECT create_hypertable('{table_name}', '{time_column}');"
             self.cursor.execute(query)
             
             self.conn.commit()
@@ -442,20 +472,44 @@ class TimescaleDBRepository(TimeSeriesDatabaseInterface):
                 return False
                 
         try:
-            conditions = {'symbol': symbol}
+            # 检查表是否存在
+            table_name = self.measurement
+            self.cursor.execute(
+                "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = %s AND table_name = %s);",
+                (self.schema, table_name)
+            )
             
-            if start_date and end_date:
-                conditions['time'] = f">= '{start_date}' AND time <= '{end_date}'"
-            elif start_date:
-                conditions['time'] = f">= '{start_date}'"
-            elif end_date:
-                conditions['time'] = f"<= '{end_date}'"
+            table_exists = self.cursor.fetchone()[0]
+            
+            if not table_exists:
+                self.logger.error(f"表 {table_name} 不存在")
+                return False
+            
+            # 构建查询和参数
+            query = f"DELETE FROM {table_name} WHERE symbol = %s"
+            params = [symbol]
+            
+            # 单独添加时间范围条件，不要将它们组合在一个条件中
+            if start_date:
+                query += " AND time >= %s"
+                params.append(start_date)
                 
-            # 使用通用的delete方法
-            return self.delete(self.measurement, conditions)
+            if end_date:
+                query += " AND time <= %s"
+                params.append(end_date)
+                
+            # 执行删除
+            self.cursor.execute(query, params)
+            rows_deleted = self.cursor.rowcount
+            self.conn.commit()
+            
+            self.logger.info(f"从表 {table_name} 删除了 {rows_deleted} 条 {symbol} 数据")
+            return True
             
         except Exception as e:
             self.logger.error(f"删除市场数据失败: {e}")
+            if self.conn:
+                self.conn.rollback()
             return False
     
     def query(

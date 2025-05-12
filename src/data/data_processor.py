@@ -24,9 +24,9 @@ class DataProcessor:
         # Make a copy to avoid modifying the original
         df = data.copy()
         
-        # Handle missing values
-        df = df.fillna(method='ffill')  # Forward fill
-        df = df.fillna(method='bfill')  # Backward fill remaining NaNs
+        # Handle missing values - using recommended methods instead of deprecated fillna(method='')
+        df = df.ffill()  # Forward fill (replaces fillna(method='ffill'))
+        df = df.bfill()  # Backward fill remaining NaNs (replaces fillna(method='bfill'))
         
         # Remove duplicate indices
         df = df[~df.index.duplicated(keep='last')]

@@ -83,8 +83,8 @@ def test_ma_crossover_strategy():
         plt.ylabel("Equity ($)")
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig(f"{symbol}_ma_crossover_performance.png")
-        logger.log_info(f"Performance chart saved to {symbol}_ma_crossover_performance.png")
+        plt.savefig(f"tests/{symbol}_ma_crossover_performance.png")
+        logger.log_info(f"Performance chart saved to tests/{symbol}_ma_crossover_performance.png")
     
     logger.log_info("MA Crossover Strategy Test Complete")
 

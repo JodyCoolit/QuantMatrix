@@ -18,6 +18,20 @@ class DatabaseFactory:
     """
     
     @staticmethod
+    def create(db_type: str, **kwargs) -> TimeSeriesDatabaseInterface:
+        """
+        创建数据库接口实例的便捷方法。
+        
+        Args:
+            db_type: 数据库类型，目前支持'timescaledb'
+            **kwargs: 传递给数据库构造函数的参数
+            
+        Returns:
+            TimeSeriesDatabaseInterface实例
+        """
+        return DatabaseFactory.create_database(db_type, kwargs)
+    
+    @staticmethod
     def create_timescaledb_repository(config_file: Optional[str] = None) -> TimescaleDBRepository:
         """
         创建TimescaleDB存储库实例。

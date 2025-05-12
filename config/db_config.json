@@ -1,0 +1,6 @@
+{
+  "default_db": "timescaledb",
+  "log_level": "INFO",
+  "max_connection_retries": 3,
+  "retry_interval": 5
+} 
