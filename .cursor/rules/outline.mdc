@@ -3,6 +3,8 @@ description:
 globs: 
 alwaysApply: false
 ---
+所有的pip安装都添加至requirements.txt，并在venv下安装。
+
 1. Core Architecture
 Modular design with clear separation of components
 Event-driven architecture for real-time processing
